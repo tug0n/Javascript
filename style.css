@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background-color: #121214 !important;
+    user-select: none;
+}
+
+h1, h2, h3, h4, h5, h6, .lobby-title, .modal-title {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 1.6rem !important;
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+}
+
+#gameCanvas {
+    background-color: #1a1a24;
+    display: block;
+}
+
+/* Thao tác hiển thị overlay mượt mà */
+#game-over-screen, #lobby-screen {
+    transition: all 0.3s ease-in-out;
+    font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.text-monospace {
+    font-family: 'Chakra Petch', monospace !important;
+    font-size: 1.1rem;
+}
+
+/* Custom CSS for Slithering Snake animation in Lobby */
+.lobby-snake-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 8px;
+    border: 1px solid #2d2d3d;
+    width: 100%;
+    max-width: 340px;
+}
+
+.lobby-snake-bg-text {
+    position: absolute;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: rgba(0, 255, 204, 0.04);
+    font-family: 'Chakra Petch', sans-serif;
+    letter-spacing: 5px;
+    pointer-events: none;
+}
+
+.snake-dot {
+    width: 14px;
+    height: 14px;
+    background: hsl(var(--snake-hue, 170), 100%, 50%);
+    border-radius: 50%;
+    position: absolute;
+    animation: slither 4s infinite linear;
+    box-shadow: 0 0 8px hsl(var(--snake-hue, 170), 100%, 50%);
+}
+
+.dot-1 { animation-delay: 0.0s; background: #ffffff; z-index: 10; box-shadow: 0 0 12px #ffffff; }
+.dot-2 { animation-delay: -0.15s; background: hsl(var(--snake-hue, 170), 100%, 50%); box-shadow: 0 0 8px hsl(var(--snake-hue, 170), 100%, 50%); }
+.dot-3 { animation-delay: -0.3s; background: hsl(var(--snake-hue, 170), 100%, 45%); box-shadow: 0 0 8px hsl(var(--snake-hue, 170), 100%, 45%); }
+.dot-4 { animation-delay: -0.45s; background: hsl(var(--snake-hue, 170), 100%, 40%); box-shadow: 0 0 8px hsl(var(--snake-hue, 170), 100%, 40%); }
+.dot-5 { animation-delay: -0.6s; background: hsl(var(--snake-hue, 170), 100%, 35%); box-shadow: 0 0 8px hsl(var(--snake-hue, 170), 100%, 35%); }
+.dot-6 { animation-delay: -0.75s; background: hsl(var(--snake-hue, 170), 100%, 30%); box-shadow: 0 0 8px hsl(var(--snake-hue, 170), 100%, 30%); }
+
+@keyframes slither {
+    0% {
+        left: -20px;
+        transform: translateY(0);
+    }
+    15% {
+        transform: translateY(-12px);
+    }
+    30% {
+        transform: translateY(12px);
+    }
+    45% {
+        transform: translateY(-12px);
+    }
+    60% {
+        transform: translateY(12px);
+    }
+    75% {
+        transform: translateY(-12px);
+    }
+    90% {
+        transform: translateY(0);
+    }
+    100% {
+        left: calc(100% + 20px);
+        transform: translateY(0);
+    }
+}
+
+/* Pulse animation for play button */
+.pulse-btn {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+/* Modals customization */
+.modal-content {
+    background-color: #16161e !important;
+    border-width: 2px !important;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+}
+
+/* Custom form range styling */
+.form-range::-webkit-slider-thumb {
+    background: #ffc107;
+}
+.form-range::-moz-range-thumb {
+    background: #ffc107;
+}
+.form-range::-ms-thumb {
+    background: #ffc107;
+}
+
+/* Blessing cards styling (Retro Pixel Theme) */
+#blessingModal .modal-content {
+    background-color: #0c0c14 !important;
+    border: 4px solid #ffc107 !important;
+    border-radius: 0px !important;
+    box-shadow: 0 0 0 6px #0c0c14, 8px 8px 0px rgba(0, 0, 0, 0.95) !important;
+}
+
+.blessing-card {
+    background: #141420 !important;
+    border: 4px solid #3c3c5c !important;
+    border-radius: 0px !important;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px #000 !important;
+    image-rendering: pixelated;
+    transition: all 0.1s steps(4);
+}
+
+.blessing-card:hover {
+    transform: translate(-2px, -2px);
+    border-color: #ffc107 !important;
+    box-shadow: 6px 6px 0px #ffc107 !important;
+}
+
+.blessing-card button {
+    border-radius: 0px !important;
+    border: 2px solid #ffc107 !important;
+    transition: all 0.1s steps(4);
+    font-weight: 700;
+}
+
+.blessing-card:hover button {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+    box-shadow: none;
+}
+
+/* Floating pause button styling */
+#pause-btn-floating {
+    background-color: rgba(26, 26, 36, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+}
+
+#pause-btn-floating:hover {
+    background-color: rgba(255, 193, 7, 0.9) !important;
+    color: #000 !important;
+    border-color: #ffc107 !important;
+    opacity: 1 !important;
+}
+
+/* Pixel themed buttons - General */
+.btn:not(#pause-btn-floating) {
+    border-radius: 0px !important;
+    border: 3px solid currentColor !important;
+    box-shadow: 4px 4px 0px #000 !important;
+    transition: all 0.1s steps(4) !important;
+    text-transform: uppercase;
+}
+
+.btn:not(#pause-btn-floating):hover {
+    transform: translate(-2px, -2px);
+}
+
+/* Hover shadows corresponding to bootstrap classes */
+.btn-success:hover, .btn-outline-success:hover {
+    background-color: #28a745 !important;
+    color: #000 !important;
+    border-color: #28a745 !important;
+    box-shadow: 6px 6px 0px #28a745 !important;
+}
+
+.btn-warning:hover, .btn-outline-warning:hover, #mode-adventure:hover {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+    border-color: #ffc107 !important;
+    box-shadow: 6px 6px 0px #ffc107 !important;
+}
+
+.btn-info:hover, .btn-outline-info:hover {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+    border-color: #0dcaf0 !important;
+    box-shadow: 6px 6px 0px #0dcaf0 !important;
+}
+
+.btn-primary:hover, .btn-outline-primary:hover {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+    border-color: #0d6efd !important;
+    box-shadow: 6px 6px 0px #0d6efd !important;
+}
+
+.btn-danger:hover, .btn-outline-danger:hover {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    border-color: #dc3545 !important;
+    box-shadow: 6px 6px 0px #dc3545 !important;
+}
+
+.btn-secondary:hover, .btn-outline-secondary:hover, .btn-outline-light:hover, .btn-light:hover, #lobby-btn:hover {
+    background-color: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+    box-shadow: 6px 6px 0px #fff !important;
+}
+
+/* Neon glow effects for lobby text */
+.lobby-title {
+    color: #ffc107 !important;
+    text-shadow: 0 0 8px rgba(255, 193, 7, 0.7), 0 0 20px rgba(255, 153, 0, 0.5) !important;
+    font-weight: 900 !important;
+}
+
+.lobby-subtitle {
+    color: #00ffcc !important;
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.7), 0 0 20px rgba(0, 179, 255, 0.5) !important;
+    font-weight: 700 !important;
+}
+
+.lobby-label {
+    color: #ff007f !important;
+    text-shadow: 0 0 6px rgba(255, 0, 127, 0.6) !important;
+}
+
+/* Pixel HUD Styles */
+.pixel-hud-row {
+    background: #0d0d13 !important;
+    border: 3px solid #ffc107 !important;
+    box-shadow: 4px 4px 0px #000 !important;
+    border-radius: 0px !important;
+    padding: 10px 15px !important;
+}
+
+.pixel-hud-sub-row {
+    background: #0d0d13 !important;
+    border: 3px solid #17a2b8 !important;
+    box-shadow: 4px 4px 0px #000 !important;
+    border-radius: 0px !important;
+    padding: 8px 15px !important;
+}
+
+/* Pixel Canvas Container Frame */
+.pixel-canvas-frame {
+    border: 4px solid #ffc107 !important;
+    box-shadow: 8px 8px 0px #000 !important;
+    border-radius: 0px !important;
+    background-color: #000;
+}
