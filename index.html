@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Roguelike: Mạo Hiểm Hầm Ngục</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-dark text-light d-flex flex-column align-items-center justify-content-center vh-100 overflow-hidden">
+
+    <!-- Màn hình Sảnh (Lobby Screen Overlay - Full màn hình) -->
+    <div id="lobby-screen"
+        class="position-fixed top-0 start-0 w-100 h-100 bg-black bg-opacity-95 d-flex flex-column align-items-center justify-content-center px-4 text-center"
+        style="z-index: 1040;">
+        
+        <!-- Cyber Banner -->
+        <div class="mb-3 border border-secondary rounded overflow-hidden shadow-sm" style="max-height: 180px; width: 100%; max-width: 600px;">
+            <img src="cyber_snake_banner.png" alt="Cyber Snake Banner" class="img-fluid w-100" style="height: 180px; object-fit: cover; object-position: center; filter: brightness(0.85);">
+        </div>
+
+        <h1 class="text-uppercase mb-1 tracking-wider lobby-title" style="font-size: 3.0rem !important;">RẮN SĂN MỒI ROGUELIKE</h1>
+        <p class="small mb-3 text-uppercase font-monospace tracking-widest lobby-subtitle" style="font-size: 1.15rem;">Bản Hùng Ca Hầm Ngục</p>
+
+        <!-- Hiệu ứng rắn slither chạy bằng CSS -->
+        <div class="lobby-snake-container mb-3 shadow-inner">
+            <span class="lobby-snake-bg-text">SLITHERING</span>
+            <div class="snake-dot dot-1"></div>
+            <div class="snake-dot dot-2"></div>
+            <div class="snake-dot dot-3"></div>
+            <div class="snake-dot dot-4"></div>
+            <div class="snake-dot dot-5"></div>
+            <div class="snake-dot dot-6"></div>
+        </div>
+
+        <!-- Chế độ chơi -->
+        <div class="mb-4 w-100" style="max-width: 400px;">
+            <label class="small d-block mb-1 text-uppercase fw-bold lobby-label" style="font-size: 0.85rem;">Chọn Chế Độ Chơi</label>
+            <div class="d-flex flex-column gap-2">
+                <button class="btn btn-outline-warning active fw-bold text-uppercase py-2" id="mode-adventure" style="font-size: 1.05rem;">
+                    🔥 Mạo Hiểm Hầm Ngục
+                </button>
+                <button class="btn btn-outline-info fw-bold text-uppercase py-2" id="mode-infinite" style="font-size: 1.05rem;">
+                    🌐 Đấu Trường Vô Hạn
+                </button>
+            </div>
+        </div>
+
+        <!-- Các nút chức năng chính -->
+        <div class="d-flex flex-column gap-2 w-100" style="max-width: 400px;">
+            <button id="start-game-btn" class="btn btn-success btn-lg fw-bold text-uppercase shadow pulse-btn py-2" style="font-size: 1.35rem;">
+                🎮 Bắt Đầu Thám Hiểm
+            </button>
+            
+            <div class="row g-2">
+                <div class="col-6">
+                    <button class="btn btn-outline-info w-100 py-2 fw-bold" style="font-size: 1.05rem;" id="settings-btn" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        ⚙️ Cài Đặt
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-outline-primary w-100 py-2 fw-bold" style="font-size: 1.05rem;" id="records-btn" data-bs-toggle="modal" data-bs-target="#historyModal">
+                        🏆 Kỷ Lục
+                    </button>
+                </div>
+            </div>
+            
+            <button class="btn btn-outline-danger btn-sm py-1 fw-bold" style="font-size: 0.95rem;" id="exit-btn" data-bs-toggle="modal" data-bs-target="#exitModal">
+                🚪 Thoát Trò Chơi
+            </button>
+        </div>
+    </div>
+
+    <!-- Container bọc toàn bộ màn hình Game chính -->
+    <div id="game-container" class="d-none d-flex flex-column align-items-center justify-content-center">
+        
+        <!-- HUD hiển thị thông tin -->
+        <div id="hud-container" class="container text-center mb-2" style="max-width: 800px;">
+            <h1 id="game-title-display" class="h3 text-warning fw-bold text-uppercase tracking-wider mb-1">Mạo Hiểm Hầm Ngục</h1>
+
+            <!-- Bootstrap HUD Row -->
+            <div class="row pixel-hud-row py-2 px-3 text-monospace">
+                <div class="col-4 text-start">
+                    <span id="floor-label" class="text-info fw-bold">TẦNG:</span> <span id="floor-display" class="fw-bold text-white">1</span>
+                </div>
+                <div class="col-4 text-center">
+                    <span class="text-danger fw-bold">ĐIỂM:</span> <span id="score-display" class="fw-bold text-white">0</span>
+                </div>
+                <div class="col-4 text-end">
+                    <span class="text-success fw-bold">TRẠNG THÁI:</span> <span id="status-display" class="text-light">Đang thám hiểm</span>
+                </div>
+            </div>
+
+            <!-- HUD Sub Row (Thông tin bùa lợi active như đạn dược, bất tử) -->
+            <div id="hud-sub-row" class="row pixel-hud-sub-row py-1 px-3 mt-1 text-monospace d-none" style="font-size: 0.9rem;">
+                <div class="col-6 text-start">
+                    <span class="text-warning">☄️ HỎA CẦU:</span> <span id="bullet-display" class="fw-bold text-white">0</span>
+                </div>
+                <div class="col-6 text-end">
+                    <span id="invincible-display" class="text-danger fw-bold d-none">🛡️ BẤT TỬ: <span id="invincible-timer">0</span>s</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khung chứa Game Canvas -->
+        <div class="position-relative pixel-canvas-frame overflow-hidden">
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+            <!-- Nút Tạm Dừng Nổi ở góc trên bên phải canvas -->
+            <button id="pause-btn-floating" class="btn btn-sm btn-dark border-secondary position-absolute top-0 end-0 m-2 opacity-75 hover-opacity-100" style="z-index: 10; font-size: 0.85rem;">
+                ⏸️ Tạm Dừng
+            </button>
+
+            <!-- Màn hình Game Over Overlay -->
+            <div id="game-over-screen"
+                class="position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-85 d-flex flex-column align-items-center justify-content-center d-none text-center"
+                style="z-index: 20;">
+                <h2 class="text-danger fw-bold display-5 mb-2">BẠN ĐÃ TỬ TRẬN!</h2>
+                <p class="text-muted mb-4 px-3" style="max-width: 500px;">Thân xác bạn đã hóa đá xám xịt giữa hầm ngục sâu thẳm...</p>
+                <div class="d-flex gap-3 justify-content-center w-100 px-4" style="max-width: 400px;">
+                    <button id="restart-btn" class="btn btn-warning btn-lg fw-bold shadow-sm flex-fill">Hồi Sinh & Thử Lại</button>
+                    <button id="lobby-btn" class="btn btn-outline-light btn-lg fw-bold shadow-sm flex-fill">Trở về Sảnh</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="controls-hint" class="text-muted mt-2 small">
+            Sử dụng các phím <b class="text-light">Mũi tên</b> hoặc <b class="text-light">W, A, S, D</b> để định hướng Rắn. 
+            Nhấn <b class="text-warning">F hoặc Shift</b> để bắn hỏa cầu (nếu có bùa). Nhấn <b class="text-warning">Space</b> để Tạm Dừng.
+        </div>
+    </div>
+
+    <!-- Modal Cài Đặt (Sảnh) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-warning text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-warning fw-bold" id="settingsModalLabel">⚙️ CÀI ĐẶT TRÒ CHƠI</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Nhạc nền volume -->
+                    <div class="mb-4">
+                        <label for="music-volume" class="form-label d-flex justify-content-between text-info fw-bold">
+                            <span>🎵 Nhạc Nền</span>
+                            <span id="music-vol-val">50%</span>
+                        </label>
+                        <input type="range" class="form-range" id="music-volume" min="0" max="100" value="50">
+                    </div>
+                    <!-- Hiệu ứng volume -->
+                    <div class="mb-3">
+                        <label for="sfx-volume" class="form-label d-flex justify-content-between text-danger fw-bold">
+                            <span>🔊 Hiệu Ứng Âm Thanh</span>
+                            <span id="sfx-vol-val">50%</span>
+                        </label>
+                        <input type="range" class="form-range" id="sfx-volume" min="0" max="100" value="50">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Lịch Sử Kỷ Lục -->
+    <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-primary text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-primary fw-bold" id="historyModalLabel">🏆 BẢNG KỶ LỤC CỦA BẠN</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs điều hướng -->
+                    <ul class="nav nav-pills nav-fill mb-3 gap-2" id="record-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="btn btn-outline-warning active w-100 fw-bold py-2" id="tab-adventure" data-bs-toggle="pill" data-bs-target="#panel-adventure" type="button" role="tab" aria-controls="panel-adventure" aria-selected="true" style="font-size: 0.95rem;">
+                                🔥 Mạo Hiểm
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="btn btn-outline-info w-100 fw-bold py-2" id="tab-infinite" data-bs-toggle="pill" data-bs-target="#panel-infinite" type="button" role="tab" aria-controls="panel-infinite" aria-selected="false" style="font-size: 0.95rem;">
+                                🌐 Vô Hạn
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="record-tabs-content">
+                        <!-- Panel Mạo Hiểm -->
+                        <div class="tab-pane fade show active" id="panel-adventure" role="tabpanel" aria-labelledby="tab-adventure">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover border-secondary text-center mb-0" id="adventure-table" style="font-size: 0.95rem;">
+                                    <thead>
+                                        <tr class="text-warning border-secondary">
+                                            <th>Hạng</th>
+                                            <th>Tầng</th>
+                                            <th>Điểm Số</th>
+                                            <th>Thời Gian</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adventure-table-body">
+                                        <!-- JS will populate adventure records here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="no-adventure-msg" class="text-muted text-center py-3 d-none">
+                                Chưa có kỷ lục Mạo Hiểm nào. Hãy bắt đầu cuộc thám hiểm!
+                            </div>
+                        </div>
+
+                        <!-- Panel Vô Hạn -->
+                        <div class="tab-pane fade" id="panel-infinite" role="tabpanel" aria-labelledby="tab-infinite">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover border-secondary text-center mb-0" id="infinite-table" style="font-size: 0.95rem;">
+                                    <thead>
+                                        <tr class="text-info border-secondary">
+                                            <th>Hạng</th>
+                                            <th>Chế Độ</th>
+                                            <th>Điểm Số</th>
+                                            <th>Thời Gian</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="infinite-table-body">
+                                        <!-- JS will populate infinite records here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="no-infinite-msg" class="text-muted text-center py-3 d-none">
+                                Chưa có kỷ lục Vô Hạn nào. Hãy bước vào đấu trường!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="clear-history-btn">Xóa Lịch Sử</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thoát (Sảnh) -->
+    <div class="modal fade" id="exitModal" tabindex="-1" aria-labelledby="exitModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-danger text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger fw-bold" id="exitModalLabel">🚨 CẢNH BÁO PHONG ẤN</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="fs-5 fw-bold text-white mb-2">Cửa ngục đã bị phong ấn bởi ma thuật!</p>
+                    <p class="text-warning mb-3">"Không ai có thể sống sót rời đi..."</p>
+                    <p class="small mb-0" style="color: #e2e8f0 !important;">(Bạn hãy đóng tab trình duyệt để thoát game thực sự nhé.)</p>
+                </div>
+                <div class="modal-footer border-secondary justify-content-center">
+                    <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">Tiếp Tục Chinh Phục</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chọn Bùa Lợi (Khi xuống tầng) -->
+    <div class="modal fade" id="blessingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="blessingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark border border-warning text-light shadow-lg">
+                <div class="modal-header border-secondary justify-content-center">
+                    <h4 class="modal-title text-warning fw-bold text-center" id="blessingModalLabel">✨ NHẬN BÙA LỢI HẦM NGỤC ✨</h4>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-info mb-4" style="font-size: 1.05rem;">Rắn thần hấp thụ sinh khí hầm ngục, vui lòng chọn 1 trong 3 bùa hộ mệnh sau:</p>
+                    <div class="row g-3 justify-content-center mb-2" id="blessing-options-container">
+                        <!-- Sẽ render các thẻ bùa lợi bằng JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tạm Dừng -->
+    <div class="modal fade" id="pauseModal" tabindex="-1" aria-labelledby="pauseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-info text-light shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info fw-bold" id="pauseModalLabel">⏸️ ĐÃ TẠM DỰNG GAME</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Âm lượng nhạc nền -->
+                    <div class="mb-4">
+                        <label for="pause-music-volume" class="form-label d-flex justify-content-between text-info fw-bold">
+                            <span>🎵 Nhạc Nền</span>
+                            <span id="pause-music-vol-val">50%</span>
+                        </label>
+                        <input type="range" class="form-range" id="pause-music-volume" min="0" max="100" value="50">
+                    </div>
+                    <!-- Âm lượng hiệu ứng -->
+                    <div class="mb-4">
+                        <label for="pause-sfx-volume" class="form-label d-flex justify-content-between text-danger fw-bold">
+                            <span>🔊 Hiệu Ứng Âm Thanh</span>
+                            <span id="pause-sfx-vol-val">50%</span>
+                        </label>
+                        <input type="range" class="form-range" id="pause-sfx-volume" min="0" max="100" value="50">
+                    </div>
+                    
+                    <hr class="border-secondary my-3">
+                    
+                    <!-- Danh sách bùa lợi đang có -->
+                    <div class="mb-2">
+                        <label class="text-warning fw-bold mb-2 d-block">🎖️ Bùa Lợi Đang Sở Hữu:</label>
+                        <div id="owned-blessings-list" class="d-flex flex-wrap gap-2">
+                            <!-- JS will render owned blessings here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="pause-exit-btn">Thoát Game</button>
+                    <button type="button" class="btn btn-success btn-sm px-4 fw-bold" data-bs-dismiss="modal">Quay Lại Game</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
